@@ -44,13 +44,11 @@ a/b
 class(a/b)
 
 #Questao 5
-
 nome = "Vivian"
 class(nome)
 nchar(nome)
 
 #Questao 6
-
 9 >= 8
 9 == 8
 9 <= 8
@@ -58,7 +56,6 @@ nchar(nome)
 "late" != "tela"
 
 #Questao 7
-
 vetor.1 = c(2, 4, 6, 8)
 vetor.2 = c(1, 1, 2, 2)
 
@@ -69,9 +66,7 @@ sqrt(vetor.1)
 vetor.1 + vetor.2
 
 #Questao 8
-
 vetor.3 = factor(x = c("ensino superior", "ensino médio", "ensino médio", "ensino fundamental", NA, "ensino médio", "ensino médio", "ensino superior", "ensino superior"), 
                  levels = c("ensino fundamental", "ensino médio", "ensino superior"), 
                  ordered = TRUE)
 class(vetor.3)
-
