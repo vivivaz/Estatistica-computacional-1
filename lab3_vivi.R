@@ -1,7 +1,6 @@
 # Lendo dados no R
 
-#####################lab3
-
+##################### lab3
 #a
 caminho = "C:/Users/vivia/Downloads/arquivos_estatistica_computacional/Dados_vendas.csv"
 df = read.table(file = caminho, header = TRUE, sep = ";" )
@@ -34,6 +33,4 @@ head(df)
 
 #f
 write.table(df,"C:/Users/vivia/Downloads/arquivos_estatistica_computacional/Dados_vendas_alt.txt",quote = FALSE, sep = ";")
-
-
 
