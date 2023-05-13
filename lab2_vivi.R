@@ -1,5 +1,7 @@
-#######################lab2
+#Conhecendo estruturas de dados no R
+# data.frame, list, matrix, array
 
+####################### lab2
 ####Questao 1
 
 ##a

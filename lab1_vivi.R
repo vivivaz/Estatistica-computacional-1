@@ -1,5 +1,6 @@
-##################### lab1
+#Conhecendo o R, Rstudio. Aplicação de operações básicas.
 
+##################### lab1
 #Questao 1
 ? mean
 example(plot)
