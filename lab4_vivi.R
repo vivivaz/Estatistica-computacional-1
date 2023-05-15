@@ -1,3 +1,5 @@
+#criando funções, instruções de controle e loops no R
+
 #######################  LAB 4
 
 #### Questao 1
@@ -19,7 +21,7 @@ somar = function(x,y)
     z = x + y
     print(z)
   }
-  
+
 somar(2,10)
 
 ##c
