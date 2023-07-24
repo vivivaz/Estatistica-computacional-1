@@ -1,0 +1,566 @@
+---
+title: "Trabalho final de Estatística Computacional I"
+author: "Vivian Vaz"
+fontsize: 12pt
+output:
+  html_document:
+    toc: yes
+    number_sections: yes
+  pdf_document:
+    toc: yes
+---
+ 
+# Introdução
+
+Neste trabalho será feita uma análise da base de dados remobilize, está tem dados de uma pesquisa para investigar a mobilidade de idosos brasileiros ao longo da pandemia de COVID-19. Em especial analisaremos a variável LSA( Life-Space Assessment) uma medida que leva em consideração o nível 
+de mobilidade do idoso. Quanto maior o seu valor, maior a mobilidade.
+
+# Análise exploratória
+Nessa sessão começo preparando a base de dados e fazendo análises iniciais.
+
+## Preparando a base de dados
+
+Lendo a base de dados...
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+library(readxl)
+remobilize <- read_excel("C:/Users/vivia/Downloads/Base_remobilize_LSA EstComp.xlsx")
+View(remobilize)
+```
+
+Analisando os tipos de dados...
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+lapply(remobilize,class)
+```
+
+Transformando a variável Nível educacional em factor...
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+
+table(remobilize$`Nível educacional`)
+remobilize$`Nível educacional`= factor(remobilize$`Nível educacional`,
+                                            levels = c("Analfabeto",
+                                                       "1 a 4 anos de escolaridade",
+                                                       "5 a 8 anos de escolaridade",
+                                                       "9 ou mais anos de escolaridade"))
+
+table(remobilize$`Nível educacional`)
+```
+
+Transformando a variável Renda mensal em factor...
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+table(remobilize$`Renda mensal`)
+remobilize$`Renda mensal`= factor(remobilize$`Renda mensal`, 
+                                       levels = c("Até 1 salário mínimo",
+                                                  "2 a 3 salários mínimos",
+                                                  "4 a 7 salários mínimos",
+                                                  "8 a 10 salários mínimos",
+                                                  "Acima de 10 salários mínimos"))
+table(remobilize$`Renda mensal`)
+```
+
+Adicionando a variável faixa etária para categorizar a variável idade...
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+remobilize$faixa_etaria = NULL
+n = 1
+for (i in remobilize$Idade)
+  {
+    if (i>=60 & i<=69)
+      {
+        remobilize$faixa_etaria[n] = "[60,69]"
+      }else if (i>=70 & i<=79)
+      {
+        remobilize$faixa_etaria[n] = "[70,79]"
+      }else if (i>=80)
+      {
+        remobilize$faixa_etaria[n] = "[80,+)"
+      }
+    n = n + 1
+  }
+
+table(remobilize$faixa_etaria)
+```
+
+Adicionando a variável mobilidade para categorizar a variável LSA...
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+remobilize$mobilidade = NULL
+n = 1
+for (i in remobilize$LSA)
+  {
+    if (i <= 60)
+      {
+        remobilize$mobilidade[n] = "Baixa"
+      }else 
+      {
+        remobilize$mobilidade[n] = "Alta"
+      }
+    n = n + 1
+  }
+
+table(remobilize$mobilidade)
+```
+
+## Análises iniciais
+
+1. Qual proporção de idosos possui baixa mobilidade?
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+table(remobilize$mobilidade)/length(remobilize$mobilidade)
+```
+
+Cerca de 43% dos idosos possui baixa mobilidade.
+  
+  
+2. Em média, qual é a medida de mobilidade desses idosos? 
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+summary(remobilize$LSA)
+```
+
+analisando a curtose...
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+library(moments)
+skewness(remobilize$LSA)
+```
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+hist(remobilize$LSA, col = "#66CDAA", main = paste("Histogram de LSA"))
+
+```
+
+A mobilidade desses idosos tem média de 64, considerada alta, além disso a distribuição da variável LSA tem uma assimetria levemente negativa, oque indica que a maior parte das observações é maior que a média.
+  
+  
+3. O que se pode dizer sobre o perfil desses idosos, em termos de variáveis sociodemográficas? Por exemplo, qual é a distribuição deles em termos de sexo, cor/raça, idade, escolaridade etc.?
+
+
+Analisando por sexo vemos que a maioria é do sexo feminino, representando 73%, além disso são a maioria em cada faixa etária.
+  
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+table(remobilize$Sexo)
+table(remobilize$Sexo)/length(remobilize$Sexo)
+sexo_idade = table(remobilize$Sexo, remobilize$faixa_etaria)
+barplot(sexo_idade, beside=TRUE, legend=TRUE, col = c("#66CDAA", "lightgrey"), main = paste("Frequência do sexo por faixa etária"), axisnames = T)
+
+```
+
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+colnames(remobilize)[4] = "cor_raca"
+```
+  
+  
+Análisando a frequência por raça vemos que á maioia é Branca seguida pelos pardos.
+  
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+cor = table(remobilize$cor_raca)
+table(remobilize$cor_raca)/length(remobilize$cor_raca)
+barplot(cor, beside=TRUE, legend=TRUE, col = c("lightblue", "lightgreen", "#FFDEAD", "#FF6A6A", "#FFA07A"), main = paste("Frequência por Raça/Cor"))
+```
+
+Análisando a frequência por faixa etária vemos que a frequência diminui quanto maior a idade.
+  
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+
+table(remobilize$faixa_etaria)/length(remobilize$faixa_etaria)
+tabela_idade = table(remobilize$faixa_etaria)
+barplot(tabela_idade, beside=TRUE, legend=TRUE, col = "#66CDAA", main = paste("Frequência por faixa etária"))
+```
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+colnames(remobilize)[6] = "nivel_educacional"
+```
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+levels(remobilize$nivel_educacional) = c("Analfabeto", "[1,4]", "[5,8]", "[9,+)")
+```
+  
+  
+Análisando a frequência por nível educacional vemos que a maioria estudou por mais de 9 anos.
+  
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+table(remobilize$nivel_educacional)/length(remobilize$nivel_educacional)
+tabela_edu = table(remobilize$nivel_educacional)
+barplot(tabela_edu, beside=TRUE, legend=TRUE, col = "#66CDAA", main = paste("Frequência por nível educacional"), horiz = T)
+```
+
+
+Análisando a frequência de cor/raça por nível educacional vemos que há evidências de associação entre as variáveis, ou seja o nível educacional é influenciado pela cor/raça.
+  
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+#Cor/raça e escolaridade
+options(scipen=999)
+table(remobilize$cor_raca, remobilize$nivel_educacional)
+cor_edu = table(remobilize$cor_raca, remobilize$nivel_educacional)
+summary(cor_edu)
+chisq.test(cor_edu)
+#p-value < 0.00000000000000022 não rejeitamos H_0
+barplot(cor_edu, beside=TRUE, legend=TRUE, col = c("lightblue", "lightgreen", "#FFDEAD", "#FF6A6A", "#FFA07A"), main = paste("Frequência de cor/raça por nível educacional"))
+
+```
+  
+  
+
+4. O que se pode dizer sobre os idosos em termos de sua saúde? Por exemplo, qual é a sua distribuição de limitação funcional, presença de comorbidades, número de horas que caminham por semana etc.?
+  
+  
+A tabela descreve a frequência de idosos pelo índice Bomfaq que mede a limitação funcional do idoso, quanto mair o seu número maior o nível de limitação.
+  
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+#quanto mair o indice Bomfaq maior o nível de limitação funcional
+table(remobilize$Bomfaq)
+```
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+remobilize$limitacao_funcional = NULL
+n = 1
+for (i in remobilize$Bomfaq)
+  {
+    if (i>=0 & i<=3)
+      {
+        remobilize$limitacao_funcional[n] = "[0,3]"
+      }else if (i>=4 & i<=7)
+      {
+        remobilize$limitacao_funcional[n] = "[4,7]"
+      }else if (i>=8 & i<=11)
+      {
+        remobilize$limitacao_funcional[n] = "[8,11]"
+      }else
+      {
+        remobilize$limitacao_funcional[n] = "[12,15]"
+      }
+    n = n + 1
+  }
+
+remobilize$limitacao_funcional= factor(remobilize$limitacao_funcional, 
+                                        levels = c("[0,3]", 
+                                                   "[4,7]", 
+                                                   "[8,11]", 
+                                                   "[12,15]"))
+
+```
+  
+Categorizando esse índece temos:
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+
+table(remobilize$limitacao_funcional)
+tabela_limitacao = table(remobilize$limitacao_funcional)
+barplot(tabela_limitacao, beside=TRUE, legend=TRUE, col = "#66CDAA", main = paste("Frequência por categoria de Bomfaq"))
+```
+
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+colnames(remobilize)[9] = "comorbidade"
+```
+
+
+Análisando a presença de comorbidade vemos que 56% dos idosos tem comorbidade.
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+table(remobilize$comorbidade)/length(remobilize$comorbidade)
+```
+  
+Analisando as horas de caminhada vemos que a grande maioria não caminha nem 1 hora. A média é puxada pelos outliers.
+  
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+library(ggplot2)
+summary(remobilize$Caminhada)
+hist(remobilize$Caminhada, col = "#66CDAA", main = paste("Histogram of Caminhada"))
+ggplot(remobilize,aes(y=Caminhada, x=1)) + geom_boxplot()
+```
+
+  
+5. Como as variáveis sociodemográficas e de saúde estão associadas com a mobilidade nos espaços de vida desses 
+idosos? Por exemplo, idosos mais jovens tendem a ter uma mobilidade maior ou menor do que idosos mais velhos?
+  
+
+Vemos que sim, quanto maior a idade menor a mobilidade.
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+table(remobilize$mobilidade, remobilize$faixa_etaria)
+
+tabela_mob = table(remobilize$mobilidade, remobilize$faixa_etaria)
+
+barplot(tabela_mob, beside=TRUE, legend=TRUE, col = c("#66CDAA", "lightgrey"), main = paste("Frequência de mobilidade por faixa etária"))
+```
+
+
+# Testes estatísticos
+
+Nesta seção vamos analizar a associação entre variáveis através de teste estatísticos.
+
+## Teste qui-quadrado
+
+H~0~: não há associação entre as variáveis/independentes
+  
+H~1~: há associação entre as variáveis
+
+  
+1. Sexo e LSA (categórica)
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+aggregate(LSA ~ Sexo, remobilize, mean)
+table(remobilize$mobilidade, remobilize$Sexo)
+
+mobilidade_sexo = table(remobilize$mobilidade, remobilize$Sexo)
+summary(mobilidade_sexo)
+chisq.test(mobilidade_sexo)
+barplot(mobilidade_sexo, beside=TRUE, legend=TRUE, col = c("#66CDAA", "lightgrey"), main = paste("Frequência de mobilidade por sexo"))
+```
+
+para um alpha = 0,05 rejeitamos H~0~, a hipótese de não associação.
+  
+  
+2. Presença de comorbidade e LSA (categórica)
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+aggregate(LSA ~ comorbidade, remobilize, mean)
+table(remobilize$mobilidade, remobilize$comorbidade)
+
+mobilidade_comorbidade = table(remobilize$mobilidade, remobilize$comorbidade)
+summary(mobilidade_comorbidade)
+chisq.test(mobilidade_comorbidade)
+barplot(mobilidade_comorbidade, beside=TRUE, legend=TRUE, col = c("#66CDAA", "lightgrey"), main = paste("Frequência de mobilidade por presença de comorbidade"))
+```
+
+para um alpha = 0,05 rejeitamos H~0~, a hipótese de não associação, ou seja, a presença de comorbidade influencia a mobilidade.
+  
+  
+3. Nível educacional e LSA (categórica)
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+aggregate(LSA ~ nivel_educacional, remobilize, mean)
+table(remobilize$mobilidade, remobilize$nivel_educacional)
+
+mobilidade_educacao = table(remobilize$mobilidade, remobilize$nivel_educacional)
+summary(mobilidade_educacao)
+chisq.test(mobilidade_educacao)
+barplot(mobilidade_educacao, beside=TRUE, legend=TRUE, col = c("#66CDAA", "lightgrey"), main = paste("Frequência de mobilidade por nível educacional"))
+```
+
+para um alpha = 0,05 rejeitamos H~0~, a hipótese de não associação, ou seja, o nível educacional influencia a mobilidade.
+
+
+## Teste Anova
+  
+H~0~: As médias de LSA para variável explicativa categórica são todas iguais.
+  
+H~1~: Existe pelo menos uma média diferente.
+  
+
+4. Cor/raça e LSA (numérica)
+
+  
+Começamos analisando as variâncias:
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+
+ggplot(remobilize, aes(x = cor_raca, 
+                 y = LSA)) + 
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar",
+               colour = "black", 
+               width = 0.1,
+               position = position_nudge(x = 0.15)) + 
+  stat_summary(fun = mean, geom = "point",
+               colour = "#191970", 
+               size = 3,
+               position=position_nudge(x = 0.15)) + 
+  labs(x = "Co/raça", 
+       y = "LSA") +
+  theme_minimal()
+```
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+library(magrittr)
+library(dplyr)
+cor_lsa = remobilize %>% group_by(cor_raca) %>% summarise(mean = mean(LSA), st.dev = sd(LSA))
+cor_lsa
+
+anova1 = aov(LSA ~ cor_raca, remobilize)
+summary(anova1)
+```
+
+como p > 0,05 não rejeitamos H~0~, ou seja, a cor/raça não influencia a mobilidade.
+  
+```{r}
+table(remobilize$cor_raca)
+```
+
+indígenas tem media diferente mais uma quantidade muito pequena de observações na amostra, por isso não influencia o p-valor.
+
+  
+5. Estado civil e LSA (numérica)
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+colnames(remobilize)[5] = "estado_civil"
+```
+
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+
+ggplot(remobilize, aes(x = estado_civil, 
+                 y = LSA)) + 
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar",
+               colour = "black", 
+               width = 0.1,
+               position = position_nudge(x = 0.15)) + 
+  stat_summary(fun = mean, geom = "point",
+               colour = "#191970", 
+               size = 3,
+               position=position_nudge(x = 0.15)) + 
+  labs(x = "Estado civil", 
+       y = "LSA") +
+  theme_minimal()
+```
+
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+est_civ_lsa = remobilize %>% group_by(estado_civil) %>% summarise(mean = mean(LSA), st.dev = sd(LSA))
+est_civ_lsa
+
+anova2 = aov(LSA ~ estado_civil, remobilize)
+summary(anova2)
+
+```
+
+como p < 0,05 rejeitamos H~0~, ou seja, o estado civil influencia a mobilidade.
+  
+
+A função "PostHocTest" nos ajuda a ter uma ideia da associação entre as categorias das variáveis.
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+library(DescTools)
+PostHocTest(anova2, method = "hsd")
+```
+  
+
+6. Renda mensal e LSA (numérica)
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+colnames(remobilize)[7] = "renda_mensal"
+```
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+levels(remobilize$renda_mensal) = c("(0, 1]", "[2, 3]", "[4, 7]", "[8, 10)", "[10, +)")
+```
+
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+
+ggplot(remobilize, aes(x = renda_mensal, 
+                 y = LSA)) + 
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar",
+               colour = "black", 
+               width = 0.1,
+               position = position_nudge(x = 0.15)) + 
+  stat_summary(fun = mean, geom = "point",
+               colour = "#191970", 
+               size = 3,
+               position=position_nudge(x = 0.15)) + 
+  labs(x = "Renda mensal", 
+       y = "LSA") +
+  theme_minimal()
+```
+
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+renda_lsa = remobilize %>% group_by(renda_mensal) %>% summarise(mean = mean(LSA), st.dev = sd(LSA))
+renda_lsa
+
+anova3 = aov(LSA ~ renda_mensal, remobilize)
+summary(anova3)
+```
+
+como p < 0,05 rejeitamos H~0~, ou seja, a renda influencia a mobilidade.
+
+  
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+PostHocTest(anova3, method = "hsd")
+```
+
+
+## Teste de correlação
+
+7. Idade e LSA (numérica)
+  
+Índice de correlação:
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+
+cor(remobilize$Idade, remobilize$LSA)
+
+plot(remobilize$Idade, remobilize$LSA,  
+     main="Gráfico de Dispersão",
+     xlab="Idade " , ylab="LSA ", 
+     pch=10, cex.lab=1.5, cex.main=1.5, col = "#191970")
+```
+
+Correlação fraca
+  
+  
+8. Bomfaq e LSA (numérica)
+  
+Índice de correlação:
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+cor(remobilize$Bomfaq, remobilize$LSA)
+
+plot(remobilize$Bomfaq, remobilize$LSA,  
+     main="Gráfico de Dispersão",
+     xlab="Bomfaq" , ylab="LSA ", 
+     pch=10, cex.lab=1.5, cex.main=1.5, col = "#191970")
+```
+
+Correlação moderada, quanto maior o Bomfaq(limitaçãofuncional) menor o LSA(medida de mobilidade).
+  
+  
+9. Caminhada e LSA (numérica)
+  
+Índice de correlação:
+```{r, echo=F, message=F, warning=F, out.width="50%"}
+cor(remobilize$Caminhada, remobilize$LSA, use = "complete.obs")
+
+plot(remobilize$Caminhada, remobilize$LSA,  
+     main="Gráfico de Dispersão",
+     xlab="Caminhada" , ylab="LSA ", 
+     pch=10, cex.lab=1.5, cex.main=1.5, col = "#191970")
+```
+
+Correlação bem fraca.
+
+# Conclusão
+  
+Pelos testes podemos concluir que as seguintes variáveis apresentaram associação com o LSA(mobilidade):
+  
+1. sexo  
+  Homens em média tem LSA(mobilidade) maior.
+  
+2. Presença de comorbidade  
+  Não ter comorbidade reduz a incidência de LSA(mobilidade) baixa.
+  
+3. Nível educacional  
+  Quanto mais anos de estudo maior a frequência de LSA(mobilidade) alta.
+  
+4. Estado civil  
+  Viuvos tem LSA(mobilidade) menor.
+  
+5. Renda mensal  
+  Idosos com a renda maior apresentam maior LSA(mobilidada).
+  
+6. Bomfaq  
+  correlação negativa moderada, quanto maior o Bomfaq(limitação) menor o LSA(mobilidade).
+
+# Referências
+
+VENABLES, W. N.; SMITH, D. M.; An Introduction to R; (PDF disponível em http://cran.us.r-project.org).
+  
+BUSSAB, W. O.; MORETTIN, P. A.; Estatística básica. 5ªed. São Paulo: Editora Saraiva, 2002.
+  
+Impact of COVID-19 Pandemic on Life-Space Mobility of Older Adults Living in Brazil: REMOBILIZE Study (https://www.frontiersin.org/articles/10.3389/fpubh.2021.643640/full)
+  
+Material de aula - Disciplina: Estatística Computacional 1 (ENCE - IBGE)
+
