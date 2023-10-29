@@ -1,0 +1,285 @@
+---
+title: "Projeto de extensão: Ferramentas computacionais"
+subtitle: "Visualização de dados com R"
+author: "Grupo de alunos da Ence"
+date: "Outubro de 2023"
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
+  beamer_presentation: default
+  powerpoint_presentation: default
+---
+
+## Qual a importância da visualização de dados? 
+
+  A visualização de dados é um recurso fundamental que está presente em praticamente qualquer análise de dados atualmente. Os recursos gráficos trazem diversos benefícios como:
+
+* Resumir informações
+
+* Ajudar a ter uma visão geral de um conjunto de dados
+
+* Mais fáceis de entender do que informações matemáticas
+
+* Chamar mais atenção, com diversas cores e formatos
+
+* Transmitir imformações de forma mais didática
+
+* Facilitar a visualização exceções, tendências e padrões nos dados. 
+
+
+
+  É provável que, ao pensar em visualização de dados, imaginemos simples gráficos de barras ou de pizza. Embora esses gráficos sejam uma parte fundamental da visualização de dados e um elemento comum de várias representações de dados, o tipo de visualização deve ser compatível com as informações que serão transmitidas. Os gráficos básicos são apenas a ponta do iceberg. Há vários métodos de visualização para apresentar os dados de forma eficaz e interessante.
+
+
+**Tipos comuns de visualização de dados:**
+
+* Gráficos
+
+* Tabelas
+
+* Diagramas
+
+* Mapas
+
+* Infográficos
+
+* Painéis
+
+
+**Exemplos mais específicos de métodos de visualização de dados:**
+
+* Gráfico de pizza
+
+Para vermos esses gráficos usaremos a base de dados "iris" que já vem no rstudio
+
+```{r, warning=F, echo=F}
+pie(table(iris$Species))
+```
+
+* Gráfico de barras
+
+```{r, warning=F, echo=F}
+barplot(table(iris$Species), col = "#6495ED")
+```
+
+* Histograma
+
+
+Indicação de site para novas cores: "https://htmlcolorcodes.com/"
+
+```{r, warning=FALSE, echo=F}
+hist(iris$Petal.Length, breaks = 30, col = "#6495ED")
+hist(iris$Petal.Length, breaks = 0:7, col = "#FFA07A")
+```
+
+* Box Plot
+
+```{r, warning=F, echo=F}
+boxplot(iris$Petal.Length ~ iris$Species, col = "#6495ED")
+```
+
+* Gráfico de dispersão (2D ou 3D)
+
+```{r, warning=F, echo=F}
+plot(iris$Petal.Length, iris$Petal.Width, col = "red", pch = 19)
+
+library(scatterplot3d)
+colors <- c("#999999", "#E69F00", "#56B4E9")
+colors <- colors[as.numeric(iris$Species)]
+scatterplot3d(iris[, 1:3], pch = 19, color = colors)
+legend("topright", legend = levels(iris$Species), pch = 16, col = c("#999999", "#E69F00", "#56B4E9"))
+```
+
+* Entre outros...
+
+Estudaremos alguns deles de forma mais detalhada.
+
+## Histograma
+
+-   **O que é histograma?** 
+Um histograma é uma espécie de gráfico de barras que demonstra uma distribuição de frequências. No histograma, a base de cada uma das barras representa uma classe e a altura representa a quantidade ou frequência absoluta com que o valor de cada classe ocorre. Ao mesmo tempo, ele pode ser utilizado como um indicador de dispersão de processos.
+
+### Exemplo com o histograma das notas
+
+Lendo os dados:
+
+```{r, warning=F, echo=F}
+library(readxl)
+df <- read_excel("C:/Users/vivia/Downloads/dados_exemplo.xlsx")
+View(df)
+```
+
+Vamos checar os tipos de dados:
+
+```{r, warning=F, echo=F}
+lapply(df, class)
+```
+
+Conhecendo a função "hist"
+
+```{r, warning=F, echo=F}
+# ?hist
+```
+
+Vamos ver os histogramas por bimestre da turma 1
+
+```{r, warning=F, echo=F}
+bimestres <- list("Primeiro Bimestre" = df$`1º Bim`, "Segundo Bimestre" = df$`2º Bim`, "Teceiro Bimestre" = df$`3º Bim`, "Quarto Bimestre" = df$`4º Bim`)
+
+n <- 1
+for (Notas in bimestres)
+{
+    hist(Notas, col = "#66CDAA", nclass = 10, main = paste("Histograma do", names(bimestres)[n]))
+    n <- n + 1
+}
+```
+
+### Exercício 1
+
+Refaça as análises por bimestre para a turma 2. Resolveremos na próxima aula.
+Dica: Para acessar os dados da turma 2 use:
+
+```{r, warning=F, echo=T}
+# Nome das abas com os dados de cada turma "tuma1", "turma2", "turma3"
+df_2 <- read_excel("C:/Users/vivia/Downloads/dados_exemplo.xlsx", sheet = "turma2")
+```
+
+### Resolvendo o exercício 1
+
+```{r, warning=F, echo=F}
+bimestres <- list("Primeiro Bimestre" = df_2$`1º Bim`, "Segundo Bimestre" = df_2$`2º Bim`, "Terceiro Bimestre" = df_2$`3º Bim`, "Quarto Bimestre" = df_2$`4º Bim`)
+
+n <- 1
+for (Notas in bimestres)
+{
+    hist(Notas, col = "#900C3F", nclass = 10, main = paste("Histograma do", names(bimestres)[n]))
+    n <- n + 1
+}
+```
+
+### Histograma das médias finais
+Como será que fica os gráficos com as médias finais?
+Vamos criar uma nova coluna no data frame com as médias finais para verificar
+
+```{r, warning=F, echo=F}
+df$media_final <- (df$`1º Bim` + df$`2º Bim` + df$`3º Bim` + df$`4º Bim`) / 4
+
+head(df)
+```
+
+```{r, warning=F, echo=F}
+hist(df$media_final, col = "#66CDAA", main = paste("Histograma da média final"))
+```
+
+Ao analisar os números, fica claro o porque da análise pelos gráficos ser tão eficaz para transmitir a informação.
+
+```{r, warning=F, echo=F}
+print("Nota final mínima")
+min(df$media_final)
+
+print("Nota final média")
+mean(df$media_final)
+
+print("Nota final máxima")
+max(df$media_final)
+```
+
+### É útil construir um histograma quando você deseja:
+
+* **Resumir grandes conjuntos de dados de forma visual:** Muitas vezes quando utilizamos tabelas não é tão fácil tirar conclusões. Nós podemos facilitar nosso trabalho e ganhar muito mais tempo e eficiência utilizando um histograma.
+* **Comparar os resultados:** É possível, com o auxílio do histograma, rapidamente comparar os resultados e, com o auxílio do eixo y, conhecer, se houver, quais colunas ultrapassaram os limites que você precisava ou não.
+* **Comunicar as informações graficamente:** Tanto as pessoas da sua equipe, quanto os clientes, podem ver facilmente os valores que ocorrem com mais frequência. Quando você usa um histograma para resumir grandes conjuntos de dados ou para comparar resultados você está utilizando uma poderosa ferramenta de comunicação.
+    
+  Assim que coletamos os dados, o primeiro passo que precisamos dar é obter o melhor entendimento deles, já que nosso cérebro pode ter dificuldade para compreender um extenso conjunto de dados de forma automática. Os gráficos nos ajudam remunindo as informações.
+
+**Outras informações que podemos obter com o  histograma:**
+
+  **Centralidade:** qual é o centro da distribuição? Onde é esperado que esteja a maioria das observações?
+
+  **Amplitude:** a distribuição normalmente contém observações entre quais valores? Qual é o ponto de máximo e o ponto de mínimo?
+
+  **Simetria:** será que devemos esperar a mesma frequência de pontos com valor alto e com valor baixo? Será que o processo é simétrico ou valores mais altos são mais raros?
+
+## Gráfico de barras
+
+  Um gráfico de barras é uma ferramenta visual que utiliza barras de diferentes alturas ou comprimentos para representar conjuntos de dados e fazer comparações entre eles. Os gráficos de barra geralmente são usados para comparar medidas (como frequência, quantidade, etc.) para categorias distintas de dados. Um gráfico de barras comum deve ter um rótulo, escalas, eixos e barras.
+  Apesar da semelhaça com o histograma são tipos diferentes de gráficos
+  É importante compreender que, dependendo do conjunto de dados coletados, existe um tipo de gráfico que pode ser mais adequado para representá-los.
+
+### O histograma X Gráfico de barras
+  O histograma é uma ferramenta estatística. Quando a variável de uma pesquisa é contínua, os dados podem ser agrupados em classes e, para representar essas classes, utiliza-se o histograma, que é um gráfico de barras justapostas; cada barra indica uma classe.
+  O histograma mede a distribuição das frequências ou dos intervalos em relação a determinados grupos.
+
+### Exemplo de gráfico de barras
+
+```{r, warning=F, echo=F}
+barplot(round(df$media_final), col = "#66CDAA", main = paste("Gráfico de barras da Média final de cada aluno"), names.arg = df$`Aluno(a)`, las = 2)
+```
+
+### Exercício 2
+
+Faça um gráfico de barras com a média final de cada aluno para a turma 2. Resolveremos na próxima aula.
+
+### Resolvendo o exercício
+
+Vamos começar criando uma coluna com as médias finais de cada aluno
+```{r, warning=F, echo=F}
+df_2$media_final <- (df_2$`1º Bim` + df_2$`2º Bim` + df_2$`3º Bim` + df_2$`4º Bim`) / 4
+head(df_2)
+```
+
+Agora vamos ao gráfico
+
+```{r, warning=F, echo=F}
+barplot(round(df_2$media_final), col = "#900C3F", main = paste("Gráfico de barras da Média final de cada aluno"), names.arg = df$`Aluno(a)`, las = 2)
+```
+
+## Box Plot
+
+  O Box Plot, também chamado digrama de caixa, é uma ferramenta gráfica utilizada para ilustrar um conjunto de dados. Por meio dele, é possível visualizar a distribuição de dados com base em cinco estatísticas: 
+
+* o mínimo;
+
+* o primeiro quartil (Q1);
+
+* a mediana;
+
+* o terceiro quartil (Q3);
+
+* o máximo.
+
+  Ele também pode informar os valores discrepantes (outliers) dos dados, oferecendo uma medida complementar para o desenvolvimento de perspectivas sobre as informações passadas através dos dados. 
+
+  Além disso, o Box Plot pode informar a posição dos dados, sua simetria, dispersão, cumprimento da cauda de distribuição e se estão ou não distorcidos.
+
+  No gráfico do Box Plot, a haste vertical é interpretada de baixo para cima, sendo que a parte inferior indica o mínimo e a superior indica o máximo, sempre desconsiderando possíveis outliers.
+
+  O retângulo central da haste possui três linhas que estão na horizontal: a linha de baixo, representada pelo contorno externo inferior do retângulo, indica o primeiro quartil. A linha de cima, que é o contorno externo superior do retângulo, indica o terceiro quartil. Já a linha interna indica a mediana ou o chamado segundo quartil.
+
+  Valores discrepantes, outliers e extremos são representados por asteriscos ou pontos, e indicam pontos atípicos no gráfico.
+  
+  Os diagramas criados pelo Box plot possibilitam diversos tipos de observações e análises. Isso porque eles oferecem informações menos enviesadas, já que os outliers que influenciam diversos indicadores, são representados a parte.
+
+### Exemplo com Box Plot
+
+```{r, warning=F, echo=F}
+bimestres <- list("1º Bimestre" = df$`1º Bim`, "2º Bimestre" = df$`2º Bim`, "3º Bimestre" = df$`3º Bim`, "4º Bimestre" = df$`4º Bim`)
+
+boxplot(bimestres, col = "#6495ED")
+```
+
+### Exercício 3
+
+Faça um gráfico box plot para as média finais da turma 2.
+
+### Resolvendo o exercício 3
+
+```{r, warning=F, echo=F}
+boxplot(df_2$media_final, col = "#900C3F")
+```
+
+## Slide no formato HTML com RMarkdown
+
+  Para fazer um relatório no R usamos o formato Rmarkdown, esse formato nos permite criar diferentes tipos de arquivos para relatórios, com o diferencial de podermos incluir Gráficos, tabelas, e outros resultados do código R. 
+  Tudo isso de forma integrada através do Rstudio. Esse mesmo arquivo que eu estou mostrando para vocês eu fiz com o Rmarkdown e gerei um relatório do tipo PDF(beamer). Para fazer isso primeiro instalei uma extensão com o seguinte comando:  "tinytex::install_tinytex()".
+  Vamos ao Rstudio ver como gerar esse tipo de relatório?
