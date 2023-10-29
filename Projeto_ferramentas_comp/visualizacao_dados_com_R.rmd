@@ -26,10 +26,7 @@ output:
 
 * Facilitar a visualização exceções, tendências e padrões nos dados. 
 
-
-
   É provável que, ao pensar em visualização de dados, imaginemos simples gráficos de barras ou de pizza. Embora esses gráficos sejam uma parte fundamental da visualização de dados e um elemento comum de várias representações de dados, o tipo de visualização deve ser compatível com as informações que serão transmitidas. Os gráficos básicos são apenas a ponta do iceberg. Há vários métodos de visualização para apresentar os dados de forma eficaz e interessante.
-
 
 **Tipos comuns de visualização de dados:**
 
@@ -44,7 +41,6 @@ output:
 * Infográficos
 
 * Painéis
-
 
 **Exemplos mais específicos de métodos de visualização de dados:**
 
@@ -63,7 +59,6 @@ barplot(table(iris$Species), col = "#6495ED")
 ```
 
 * Histograma
-
 
 Indicação de site para novas cores: "https://htmlcolorcodes.com/"
 
